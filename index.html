@@ -69,7 +69,12 @@
         <label>Transaction fee (%) <input id="txn" type="number" min="0" step="any" value="2"></label>
         <label>Fixed service fee (₱) <input id="svcfee" type="number" min="0" step="any" value="0"></label>
       </div>
-      <p class="hint">Defaults: Shopee 6% + 2%, Lazada 4% + 2%, TikTok 6% + 2%. Categories and promos change rates — edit to match your seller center, and they save in your browser.</p>
+      <div class="fields three">
+        <label>Campaign / FSS fee (%) <input id="campFee" type="number" min="0" step="any" value="0" placeholder="e.g. 3.5 Free Shipping Special"></label>
+        <label class="check-label"><input type="checkbox" id="ecomTax" checked> BIR 0.5% e-comm withholding (RR 16-2023)</label>
+        <label>RTS / returns buffer (₱) <input id="rtsBuffer" type="number" min="0" step="any" value="0" placeholder="failed-COD allowance"></label>
+      </div>
+      <p class="hint">Defaults: Shopee 6% + 2%, Lazada 4% + 2%, TikTok 6% + 2%, + 0.5% BIR e-commerce withholding (Shopee/Lazada/TikTok withhold it since July 2024). Campaign fees (FSS, coins cashback) are % too — add them. Rates change per promo — match your seller center.</p>
 
       <div class="actions">
         <button id="printBtn" class="btn primary">🖨️ Print price sheet</button>

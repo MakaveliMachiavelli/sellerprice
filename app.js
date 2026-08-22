@@ -20,25 +20,29 @@ const peso = (n) => '₱' + (Math.round(n * 100) / 100).toLocaleString('en-PH', 
 const pct = (n) => (n * 100).toFixed(2) + '%';
 const num = (id) => Number($(id).value) || 0;
 
-/* fee stack: fees(p) = p·(comm%+txn%)/100 + svc + fixed + ship − voucher
-   profit(p) = p − fees − cost = p(1 − f) − F   where F = svc+fixed+ship−voucher+cost
-   target margin m: p·m = profit → p = (F − svc…) careful: p(1−f−m) = svc+fixed+ship−voucher+cost */
-function compute(cost, marginPct, commPct, txnPct, svc, fixed, ship, voucher) {
-  const f = (commPct + txnPct) / 100;
-  const F = svc + fixed + ship - voucher + cost;   // non-%-of-price costs incl COGS
+/* fee stack (BIR RR 16-2023 aware):
+   f = (comm% + txn% + campaign% + 0.5% ecom CWT)/100 — %-of-price fees
+   F = svc + fixed + ship + voucher + RTS buffer + cost  — seller expenses (ADD, never subtract)
+   price for margin m:  p(1 − f − m) = F  →  p = F/(1−f−m)
+   profit(p) = p − p·f − svc − fixed − ship − voucher − RTS − cost */
+function compute(cost, marginPct, commPct, txnPct, svc, fixed, ship, voucher, campPct = 0, ecomTax = true, rts = 0) {
+  const ecomPct = ecomTax ? 0.5 : 0; // BIR RR 16-2023: 0.5% e-commerce withholding on gross
+  const f = (commPct + txnPct + campPct + ecomPct) / 100;
+  const F = svc + fixed + ship + voucher + rts + cost;
   const m = marginPct / 100;
   const denom = 1 - f - m;
   const price = denom > 0 ? F / denom : NaN;
   const fees = price * f + svc;
-  const profit = price - fees - fixed - ship + voucher - cost;
+  const profit = price - fees - fixed - ship - voucher - rts - cost;
   const beDenom = 1 - f;
   const breakEven = beDenom > 0 ? F / beDenom : NaN;
-  return { price, fees, profit, breakEven, f };
+  return { price, fees, profit, breakEven, f, ecomPct };
 }
 
 function inputs() {
   return { cost: num('cost'), margin: num('margin'), ship: num('ship'), voucher: num('voucher'),
-    fixed: num('fixed'), comm: num('comm'), txn: num('txn'), svc: num('svcfee') };
+    fixed: num('fixed'), comm: num('comm'), txn: num('txn'), svc: num('svcfee'),
+    camp: num('campFee'), ecom: $('ecomTax').checked, rts: num('rtsBuffer') };
 }
 
 function render() {
@@ -46,28 +50,28 @@ function render() {
   const platKey = $('platform').value;
   const plat = PLATFORMS[platKey];
   $('platName').textContent = plat.name;
-  const r = compute(i.cost, i.margin, i.comm, i.txn, i.svc, i.fixed, i.ship, i.voucher);
+  const r = compute(i.cost, i.margin, i.comm, i.txn, i.svc, i.fixed, i.ship, i.voucher, i.camp, i.ecom, i.rts);
 
   const ok = Number.isFinite(r.price);
   $('oPrice').textContent = ok ? peso(r.price) : 'impossible fees!';
   $('oProfit').textContent = ok ? peso(r.profit) : '—';
   $('oBe').textContent = ok ? peso(r.breakEven) : '—';
-  $('oFees').textContent = ok ? peso(r.fees + i.fixed + i.ship - i.voucher) : '—';
+  $('oFees').textContent = ok ? peso(r.fees + i.fixed + i.ship + i.voucher + i.rts) : '—';
 
   $('p_plat').textContent = plat.name;
   $('p_price').textContent = ok ? peso(r.price) : '—';
   $('p_cost').textContent = peso(i.cost);
   $('p_pct').textContent = ok ? peso(r.price * r.f) : '—';
-  $('p_fix').textContent = peso(i.svc + i.fixed + i.ship - i.voucher);
+  $('p_fix').textContent = peso(i.svc + i.fixed + i.ship + i.voucher + i.rts);
   $('p_net').textContent = ok ? peso(r.profit) : '—';
   $('p_margin').textContent = ok && r.price > 0 ? pct(r.profit / r.price) : '—';
   $('p_be').textContent = ok ? peso(r.breakEven) : '—';
 
   // all-platforms table
   const rows = Object.entries(PLATFORMS).filter(([k]) => k !== 'custom').map(([k, p]) => {
-    const rr = compute(i.cost, i.margin, p.comm, p.txn, p.svc, i.fixed, i.ship, i.voucher);
-    return `<tr><td>${p.name}</td><td class="r">${p.comm + p.txn}%</td>` +
-      `<td class="r"><strong>${peso(rr.price)}</strong></td><td class="r">${peso(rr.profit)}</td></tr>`;
+    const rr = compute(i.cost, i.margin, p.comm, p.txn, p.svc, i.fixed, i.ship, i.voucher, i.camp, i.ecom, i.rts);
+    return `<tr><td>${p.name}</td><td class="r">${p.comm + p.txn + i.camp + r.ecomPct}%</td>` +
+      `<td class="r"><strong>${Number.isFinite(rr.price) ? peso(rr.price) : '—'}</strong></td><td class="r">${Number.isFinite(rr.price) ? peso(rr.profit) : '—'}</td></tr>`;
   });
   $('platRows').innerHTML = rows.join('');
 
@@ -77,7 +81,8 @@ function render() {
 function saveDraft() {
   try {
     localStorage.setItem(LS.draft, JSON.stringify({
-      f: ['cost','margin','ship','voucher','fixed','comm','txn','svcfee'].map(id => $(id).value),
+      f: ['cost','margin','ship','voucher','fixed','comm','txn','svcfee','campFee','rtsBuffer'].map(id => $(id).value),
+      ecom: $('ecomTax').checked,
       platform: $('platform').value
     }));
   } catch (e) {}
@@ -86,7 +91,8 @@ function loadDraft() {
   try {
     const d = JSON.parse(localStorage.getItem(LS.draft) || 'null');
     if (!d) return;
-    ['cost','margin','ship','voucher','fixed','comm','txn','svcfee'].forEach((id, x) => $(id).value = d.f[x] ?? $(id).value);
+    ['cost','margin','ship','voucher','fixed','comm','txn','svcfee','campFee','rtsBuffer'].forEach((id, x) => $(id).value = d.f[x] ?? $(id).value);
+    if (d.ecom !== undefined) $('ecomTax').checked = d.ecom;
     $('platform').value = d.platform ?? 'shopee';
   } catch (e) {}
 }
@@ -103,7 +109,7 @@ function renderBatch() {
   $('batchBody').innerHTML = items.length ? items.map((it, x) => {
     const cells = ['shopee','lazada','tiktok'].map(k => {
       const p = PLATFORMS[k];
-      const rr = compute(it.cost, i.margin, p.comm, p.txn, p.svc, i.fixed, i.ship, i.voucher);
+      const rr = compute(it.cost, i.margin, p.comm, p.txn, p.svc, i.fixed, i.ship, i.voucher, i.camp, i.ecom, i.rts);
       return `<td class="r">${Number.isFinite(rr.price) ? peso(rr.price) : '—'}</td>`;
     }).join('');
     return `<tr><td>${it.name}</td><td class="r">${peso(it.cost)}</td>${cells}<td><button class="x-btn" data-ii="${x}">✕</button></td></tr>`;
@@ -117,7 +123,7 @@ function batchCsv() {
   items.forEach(it => {
     const prices = ['shopee','lazada','tiktok'].map(k => {
       const p = PLATFORMS[k];
-      const rr = compute(it.cost, i.margin, p.comm, p.txn, p.svc, i.fixed, i.ship, i.voucher);
+      const rr = compute(it.cost, i.margin, p.comm, p.txn, p.svc, i.fixed, i.ship, i.voucher, i.camp, i.ecom, i.rts);
       return Number.isFinite(rr.price) ? rr.price.toFixed(2) : '';
     });
     out.push([it.name, it.cost.toFixed(2), ...prices]);
@@ -133,7 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDraft();
   applyPro();
 
-  ['cost','margin','ship','voucher','fixed','comm','txn','svcfee','platform'].forEach(id => $(id).addEventListener('input', render));
+  ['cost','margin','ship','voucher','fixed','comm','txn','svcfee','campFee','rtsBuffer','platform'].forEach(id => $(id).addEventListener('input', render));
+  $('ecomTax').addEventListener('change', render);
 
   // platform switch reloads default fees (unless customizing)
   $('platform').addEventListener('change', () => {
