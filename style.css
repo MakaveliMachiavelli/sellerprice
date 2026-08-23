@@ -1,7 +1,7 @@
 /* SellerPrice — styles */
 :root{
-  --orange:#c2410c; --ink:#101828; --muted:#667085; --line:#e4e7ec;
-  --bg:#fdf6f0; --card:#fff; --green:#0e9f6e; --red:#dc2626;
+  --orange:#c2410c; --ink:#1a1410; --muted:#7c6f5f; --line:#e7ddcd;
+  --bg:#fdf6f0; --card:#fff; --green:#067a53; --red:#dc2626;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
@@ -45,7 +45,7 @@ input:focus,select:focus{outline:2px solid #fed7aa;border-color:var(--orange)}
 .stat-v{font-size:1.3rem;font-weight:900;margin-top:.15rem}
 .stat-v.neg{color:var(--red)}
 
-.price-doc{background:#fff;border:1px solid #cbd5e1;border-radius:6px;padding:1.2rem;font-size:.85rem;box-shadow:0 1px 4px rgba(16,24,40,.06)}
+.price-doc{background:#fff;border:1px solid #d4c9b8;border-radius:6px;padding:1.2rem;font-size:.85rem;box-shadow:0 1px 4px rgba(16,24,40,.06)}
 .pd-head{font-weight:900;letter-spacing:.12em;border-bottom:2px solid var(--ink);padding-bottom:.35rem;margin-bottom:.6rem}
 .pd-table{width:100%;border-collapse:collapse;font-size:.82rem}
 .pd-table td{border-bottom:1px solid var(--line);padding:.4rem .3rem}
@@ -97,7 +97,7 @@ input:focus,select:focus{outline:2px solid #fed7aa;border-color:var(--orange)}
 .book-table th{border-bottom:2px solid var(--ink);text-align:left;padding:.3rem}
 .book-table td{border-bottom:1px solid var(--line);padding:.35rem .3rem}
 .book-table .r{text-align:right}
-.x-btn{border:none;background:#fee2e2;color:var(--red);border-radius:6px;cursor:pointer;font-weight:800;padding:.25rem .5rem}
+.x-btn{border:none;background:#fef2f2;color:var(--red);border-radius:6px;cursor:pointer;font-weight:800;padding:.25rem .5rem}
 .batch-add{display:grid;grid-template-columns:2fr 1fr auto;gap:.5rem;margin-bottom:.5rem}
 
 .site-footer{border-top:1px solid var(--line);margin-top:2.5rem;padding:1.2rem;text-align:center;color:var(--muted);font-size:.78rem}
