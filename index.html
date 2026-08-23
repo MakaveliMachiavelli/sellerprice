@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shopee / Lazada / TikTok Shop Fee &amp; Pricing Calculator PH — SellerPrice</title>
+<link rel="manifest" href="manifest.json">
 <meta name="description" content="Free Philippines marketplace fee calculator: enter your cost + target margin, get the correct selling price for Shopee, Lazada and TikTok Shop — with fee breakdown, net profit and break-even. Batch price-list in PRO.">
 <meta property="og:title" content="SellerPrice — Shopee/Lazada/TikTok Fee Calculator">
 <meta property="og:description" content="Free e-commerce seller fee calculator: Shopee, Lazada, TikTok Shop fees + BIR 0.5% withholding. Reverse price solver. PRO ₱99 for batch mode.">
@@ -225,5 +226,11 @@
 </div>
 
 <script src="app.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
 </body>
 </html>

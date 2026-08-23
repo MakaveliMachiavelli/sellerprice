@@ -1,0 +1,16 @@
+{
+  "name": "SellerPrice",
+  "short_name": "sellerprice",
+  "description": "Shopee/Lazada/TikTok marketplace pricing calculator.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#faf6ef",
+  "theme_color": "#b45309",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='#b45309'/><text x='32' y='44' font-size='34' text-anchor='middle' fill='%23fff' font-family='Arial' font-weight='bold'>S</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
