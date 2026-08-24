@@ -2,7 +2,7 @@
 'use strict';
 
 /* PRO unlock codes. OWNER: change before promoting (see PAYMENTS.md). */
-const PRO_CODES = ['SELLERPRICE-99', 'SP-DEMO'];
+const PRO_CODES = ['SP-PRO-99-73AF-192D', 'SP-PRO-99-DEMO-CF4F-1B06'];
 const LS = { draft: 'sp_draft', pro: 'sp_pro', items: 'sp_items' };
 
 const PLATFORMS = {
