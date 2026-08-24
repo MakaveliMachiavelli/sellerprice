@@ -1,6 +1,6 @@
 /* SellerPrice — styles */
 :root{
-  --orange:#c2410c; --ink:#101828; --muted:#667085; --line:#e4e7ec;
+  --orange:#c2410c; --ink:#101828; --muted:#3d4a5c; --line:#e4e7ec;
   --bg:#fdf6f0; --card:#fff; --green:#0e9f6e; --red:#dc2626;
 }
 *{box-sizing:border-box}
