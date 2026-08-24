@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopee / Lazada / TikTok Shop Fee &amp; Pricing Calculator PH — SellerPrice</title>
+<meta name="description" content="Free Philippines marketplace fee calculator: enter your cost + target margin, get the correct selling price for Shopee, Lazada and TikTok Shop — with fee breakdown, net profit and break-even. Batch price-list in PRO.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23c2410c'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3E₱%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"How much are Shopee seller fees in the Philippines?","acceptedAnswer":{"@type":"Answer","text":"Typical Shopee PH fees: commission roughly 5–6% (varies by category), transaction fee ~2%, plus optional campaign/service fees. Sellers commonly budget 13–15% of selling price for all-in Shopee costs including shipping subsidies and vouchers. This calculator lets you set each rate exactly."}},
+    {"@type":"Question","name":"How do I price my product for a 30% margin on Shopee?","acceptedAnswer":{"@type":"Answer","text":"Selling price = (cost + fixed fees + shipping you absorb − vouchers) ÷ (1 − margin% − commission% − transaction%). SellerPrice solves this instantly for Shopee, Lazada and TikTok Shop."}},
+    {"@type":"Question","name":"Is this calculator free?","acceptedAnswer":{"@type":"Answer","text":"Yes — unlimited single-item computations are free. PRO (₱99 one-time) adds the batch price-list: paste all your costs, get suggested prices per platform, export CSV."}}
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand">Seller<span>Price</span></div>
+  <nav>
+    <span id="proBadge" class="badge hidden">PRO</span>
+    <a href="#faq">FAQ</a>
+    <button id="proBtn" class="btn-link">Get PRO — ₱99</button>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Stop guessing your selling price.</h1>
+    <p class="sub">Enter <strong>cost + target margin</strong> → get the exact selling price for <strong>Shopee, Lazada &amp; TikTok Shop</strong>, with fee breakdown, net profit per sale and break-even price. Fees are editable, so it's always accurate. Free, no signup.</p>
+    <div class="hero-chips">
+      <span>✓ Inverse-margin solver</span>
+      <span>✓ 3 platforms + custom</span>
+      <span>✓ Editable fee rates</span>
+      <span>✓ Break-even + profit/sale</span>
+    </div>
+  </section>
+
+  <div class="app-grid">
+    <section class="panel">
+      <h2>1. Your item</h2>
+      <div class="fields three">
+        <label>Item cost / COGS (₱) <input id="cost" type="number" min="0" step="any" value="150"></label>
+        <label>Target profit margin (%) <input id="margin" type="number" min="0" max="90" step="any" value="30"></label>
+        <label>Shipping you absorb (₱) <input id="ship" type="number" min="0" step="any" value="0"></label>
+      </div>
+      <div class="fields three">
+        <label>Voucher / discount given (₱) <input id="voucher" type="number" min="0" step="any" value="0"></label>
+        <label>Other fixed cost per sale (₱) <input id="fixed" type="number" min="0" step="any" value="0" placeholder="packaging, etc."></label>
+        <label>Platform
+          <select id="platform">
+            <option value="shopee">Shopee PH</option>
+            <option value="lazada">Lazada PH</option>
+            <option value="tiktok">TikTok Shop PH</option>
+            <option value="custom">Custom</option>
+          </select>
+        </label>
+      </div>
+
+      <h2>2. Fees for <span id="platName">Shopee PH</span> <span class="tiny">(editable)</span></h2>
+      <div class="fields three">
+        <label>Commission (%) <input id="comm" type="number" min="0" step="any" value="6"></label>
+        <label>Transaction fee (%) <input id="txn" type="number" min="0" step="any" value="2"></label>
+        <label>Fixed service fee (₱) <input id="svcfee" type="number" min="0" step="any" value="0"></label>
+      </div>
+      <div class="fields three">
+        <label>Campaign / FSS fee (%) <input id="campFee" type="number" min="0" step="any" value="0" placeholder="e.g. 3.5 Free Shipping Special"></label>
+        <label class="check-label"><input type="checkbox" id="ecomTax" checked> BIR 0.5% e-comm withholding (RR 16-2023)</label>
+        <label>RTS / returns buffer (₱) <input id="rtsBuffer" type="number" min="0" step="any" value="0" placeholder="failed-COD allowance"></label>
+      </div>
+      <p class="hint">Defaults: Shopee 6% + 2%, Lazada 4% + 2%, TikTok 6% + 2%, + 0.5% BIR e-commerce withholding (Shopee/Lazada/TikTok withhold it since July 2024). Campaign fees (FSS, coins cashback) are % too — add them. Rates change per promo — match your seller center.</p>
+
+      <div class="actions">
+        <button id="printBtn" class="btn primary">🖨️ Print price sheet</button>
+        <button id="batchBtn" class="btn hidden">📋 Batch price-list (PRO)</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="preview-title">Pricing result</h2>
+      <div class="stat-row">
+        <div class="stat hi"><div class="stat-l">SELLING PRICE</div><div class="stat-v" id="oPrice">—</div></div>
+        <div class="stat"><div class="stat-l">PROFIT / SALE</div><div class="stat-v" id="oProfit">—</div></div>
+        <div class="stat"><div class="stat-l">BREAK-EVEN PRICE</div><div class="stat-v" id="oBe">—</div></div>
+        <div class="stat"><div class="stat-l">ALL-IN FEES</div><div class="stat-v neg" id="oFees">—</div></div>
+      </div>
+      <div id="doc" class="price-doc">
+        <div class="pd-head">PRICE SHEET — <span id="p_plat">Shopee PH</span></div>
+        <table class="pd-table">
+          <tbody>
+            <tr><td>Suggested selling price</td><td class="r" id="p_price">—</td></tr>
+            <tr><td>Item cost (COGS)</td><td class="r" id="p_cost">—</td></tr>
+            <tr><td>Commission + transaction fees</td><td class="r" id="p_pct">—</td></tr>
+            <tr><td>Fixed fees / shipping / vouchers</td><td class="r" id="p_fix">—</td></tr>
+            <tr class="tot"><td><strong>Net profit per sale</strong></td><td class="r"><strong id="p_net">—</strong></td></tr>
+            <tr><td>Actual margin</td><td class="r" id="p_margin">—</td></tr>
+            <tr><td>Break-even price (₱0 profit)</td><td class="r" id="p_be">—</td></tr>
+          </tbody>
+        </table>
+        <div class="pd-foot">Computed by SellerPrice · verify current rates in your Seller Center</div>
+      </div>
+
+      <h2>Same item on all platforms</h2>
+      <table class="plat-table">
+        <thead><tr><th>Platform</th><th class="r">Fees %</th><th class="r">Sell at</th><th class="r">Profit</th></tr></thead>
+        <tbody id="platRows"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <section class="marketing">
+    <h2>Why sellers use SellerPrice</h2>
+    <div class="cards">
+      <div class="card"><h3>🎯 Margin that survives fees</h3><p>Most "pricing" is vibes. This solves price from your target margin <em>after</em> commission, transaction fees, shipping and vouchers — the math that actually protects profit.</p></div>
+      <div class="card"><h3>📊 3 platforms at once</h3><p>Same item, different fee structures: see Shopee vs Lazada vs TikTok prices side-by-side and list everywhere correctly.</p></div>
+      <div class="card"><h3>🔐 Yours, offline</h3><p>No signup, no server, fee rates saved in your browser. Update rates when your Seller Center changes them.</p></div>
+    </div>
+
+    <h2 id="faq">FAQ</h2>
+    <div class="faq-item"><h3>Which fees does this include?</h3><p>Commission %, transaction/payment %, and any fixed service fee — plus shipping you absorb and vouchers you give, which are the hidden margin-killers. Enter rates from your Seller Center (they vary by category and promo).</p></div>
+    <div class="faq-item"><h3>How does the suggested price formula work?</h3><p><code>price = (cost + fixed + ship − voucher) ÷ (1 − margin − commission% − txn%)</code>. It's the algebraic inverse of the fee stack — the price that lands your exact target margin.</p></div>
+    <div class="faq-item"><h3>What's in PRO?</h3><p>The batch price-list: add all your items + costs, get one table of suggested prices per platform, print it or export CSV. ₱99 once.</p></div>
+
+    <div class="cta-box">
+      <h2>SellerPrice PRO — ₱99 one-time</h2>
+      <ul>
+        <li>📋 <strong>Batch price-list</strong> — all your items, suggested price per platform, one table</li>
+        <li>⬇️ <strong>CSV export</strong> + printable sheet for your sourcing notebook</li>
+        <li>💾 <strong>Price history</strong> — re-run when fees or costs change</li>
+      </ul>
+      <p class="once">One-time ₱99 via GCash. One mispriced SKU costs more.</p>
+      <button id="proBtn2" class="btn primary big">Unlock PRO — ₱99</button>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>SellerPrice — marketplace fee &amp; pricing calculator for PH online sellers. Rates are editable defaults; verify in your Seller Center. Pairs with <a href="https://makavelimachiavelli.github.io/negosyosheet/">NegosyoSheet</a>. · <a href="shopee-lazada-fees-guide.html">📖 Full guide</a></p>
+</footer>
+
+<!-- PAY MODAL -->
+<div id="payModal" class="modal hidden">
+  <div class="modal-card">
+    <button class="modal-x" id="payClose">✕</button>
+    <h2>Unlock SellerPrice PRO</h2>
+    <p class="price">₱99 <span>one-time · lifetime · no subscription</span></p>
+    <div class="qr-box">
+      <img src="assets/gcash-qr.svg" alt="GCash QR (replace with merchant QR)" width="180" height="180">
+      <ol class="pay-steps">
+        <li>Scan the GCash QR and send <strong>₱99</strong>.</li>
+        <li>Enter the unlock code sent to you below.</li>
+      </ol>
+    </div>
+    <div class="code-row">
+      <input id="codeInput" placeholder="Enter unlock code">
+      <button id="codeBtn" class="btn primary">Unlock</button>
+    </div>
+    <p class="code-msg" id="codeMsg"></p>
+  </div>
+</div>
+
+<!-- BATCH MODAL (PRO) -->
+<div id="batchModal" class="modal hidden">
+  <div class="modal-card wide">
+    <button class="modal-x" id="batchClose">✕</button>
+    <h2>📋 Batch price-list</h2>
+    <p class="hint">Add items with the form on the left (cost = COGS). Table updates live; export when ready.</p>
+    <div class="batch-add">
+      <input id="bItem" placeholder="Item name">
+      <input id="bCost" type="number" placeholder="Cost ₱">
+      <button id="bAdd" class="btn primary">Add</button>
+    </div>
+    <table class="book-table"><thead><tr><th>Item</th><th class="r">Cost</th><th class="r">Shopee ₱</th><th class="r">Lazada ₱</th><th class="r">TikTok ₱</th><th></th></tr></thead><tbody id="batchBody"></tbody></table>
+    <div class="actions">
+      <button id="batchCsv" class="btn primary">⬇️ Export CSV</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
